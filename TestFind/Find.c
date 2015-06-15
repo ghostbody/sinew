@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include "Find.h"
 #include "Global.h"
+#include "Catalog.h"
+#include "Json.h"
 
 /*
 typedef struct file_position {
@@ -11,6 +14,18 @@ typedef struct file_position {
   file_position * next;
 } file_position;
 */
+
+#ifndef DATA_TYPES
+#define DATA_TYPES
+const char * data_types[] = {
+  "int32",
+  "bool",
+  "string",
+  "array",
+  "object",
+  "unknown"
+};
+#endif
 
 int build_data_file_index(file_position *** file_index, FILE * storage) {
   if(storage == NULL) {
@@ -75,8 +90,8 @@ int build_data_file_index(file_position *** file_index, FILE * storage) {
       printf("%d ", positioner->attr_ids[i]);
       }
     */
-    printf("%d", (positioner->attr_ids)[0]);
-    printf("\n");
+    // printf("%d", (positioner->attr_ids)[0]);
+    // printf("\n");
     fseek(storage, (long)((1+1+attr_num*2) * sizeof(int) + current_position), SEEK_SET);
     fread(&(positioner->size), sizeof(int), 1, storage);
     positioner->next = NULL;
@@ -98,3 +113,58 @@ int build_data_file_index(file_position *** file_index, FILE * storage) {
   
   return count;
 }
+
+int compare(const void *p, const void *q) {
+    return (*(int *)p - *(int *)q);
+}
+
+void find_attr_in_file(result ** head, result ** tail, file_position ** file_index, int count, int attr_id) {
+  int i;
+  int * p;
+  
+  for(i = 0; i < count; i++) {
+    p = (int *)bsearch(&attr_id, file_index[i]->attr_ids, file_index[i]->attr_num, sizeof(int), compare);
+    if(p != NULL) {
+      if((*head) == NULL) {
+	while((*head) != NULL) {
+	  (*head) = (result *)malloc(sizeof(result));
+	}
+	(*tail) = (*head);
+	(*head)->record_id = file_index[i]->id;
+	(*head)->json = NULL;
+	(*head)->next = NULL;
+      } else {
+	while((*tail)->next == NULL) {
+	  (*tail)->next = (result *)malloc(sizeof(result));
+	}
+	(*tail) = (*tail)->next;
+	(*tail)->record_id = file_index[i]->id;
+	(*tail)->json = NULL;
+	(*tail)->next = NULL;
+      }
+    }
+  }
+}
+
+bool Materializer(file_position ** file_index, result ** head) {
+  result * positioner = (*head);
+  while(positioner != NULL) {
+    // to json
+  }
+}
+
+bool find(char * Key_name, char * value, char ** json,
+	  catalog_record * CATALOG, file_position ** file_index, int count, FILE * storage) {
+  int attr_id;
+  int i, j;
+
+  result * result_head = NULL;
+  result * result_tail = result_head;
+  
+  for(i = 0; i < 5; i++) {
+    if(catalog_find_by_key(CATALOG, &attr_id, Key_name, data_types[i])) {
+      find_attr_in_file(&result_head, &result_tail, file_index, count, attr_id);
+    }
+  }
+}
+

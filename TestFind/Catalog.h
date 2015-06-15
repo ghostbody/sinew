@@ -58,11 +58,11 @@ catalog_record ** catalog_index_build(catalog_record * CATALOG);
 bool catalog_find_by_id(int _id,catalog_record * index[],
 		  catalog_record ** destination);
 /*
-  input: catalog keyname and keytype
+  input: catalog keyname and key type
   process: find the id
-  output: id
+  output: an id
  */
-bool catalog_find_by_key(catalog_record * CATALOG, int *id, char * Key_name, char * Key_Type);
+bool catalog_find_by_key(catalog_record * CATALOG, int * id, char * Key_name, char * Key_Type);
 /*
   input: A Catalog list
   process: write it into the file
