@@ -12,6 +12,8 @@ big:
 	./test <./data/testdata.txt
 small:
 	./test <./data/ajson.txt
+medium:
+	./test <./data/testdata_extra.txt
 clean:
 	rm -f test *.c~ *.h~ *.o *.h.gch
 	rm -f *.*~ *~ *.bin .*.bin.* CATALOG.txt test_JsonSerializer.txt
