@@ -1,6 +1,7 @@
 
 #ifndef JSONPARSER
 #define JSONPARSER
+#include "Global.h"
 typedef enum {atr = 0, value = 1} json_type;
 typedef enum {int32 = 0, bool8 = 1, stringn = 2, array1 = 3, object1 = 4, unknown = 5} data_type;
 typedef struct json_parser {
@@ -11,6 +12,6 @@ typedef struct json_parser {
   struct json_parser * next;
 } json_parser;
 extern json_parser * ParseJson(char * JsonStr, int * len);
-extern char * to_json(char ** Key_names, char ** values); // new
+extern bool to_json(char *JSon, char ** Key_names, char ** values, int property_amount); // new
 extern void DeleteJson(json_parser * head);
 #endif

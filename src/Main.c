@@ -6,6 +6,11 @@
 #include "Catalog.h"
 #include "Json.h"
 #include "Serializer.h"
+#include "Find.h"
+
+int comp(const void*a,const void*b) {
+  return (*(file_position **)a)->id - (*(file_position **)b)->id;
+}
 
 /* commands for the project
    -h : help
@@ -58,7 +63,7 @@ void Insert(const char * file) {
   static char IOBUFFER[PAGE_SIZE];
   
   if (setvbuf(storage, IOBUFFER, _IOFBF, PAGE_SIZE) != 0) {
-    printf("failed to set up buffer for input file\n");
+    printf("failed to set up buffer for qurey\n");
   } else {
     printf("buffer(8KB) set up for input file\n"); 
   }
@@ -82,6 +87,32 @@ void Insert(const char * file) {
   
   catalog_save(CATALOG);
   fclose(storage);
+}
+
+void Find(const char * A, const char * B) {
+  catalog_record * CATALOG = NULL;
+  FILE * storage = fopen(DATA_FILE, "rb");
+  file_position **file_index;
+  int count;
+
+  printf("\n note that:\n");
+  printf("\t use raw_int for int values\n");
+  printf("\t use 'string' for string values\n");
+  printf("\t use true or false for bool values\n");
+  printf("\t use [] for array\n");
+  printf("\t use {} for json\n\n");
+
+  static char IOBUFFER[PAGE_SIZE];
+  if (setvbuf(storage, IOBUFFER, _IOFBF, PAGE_SIZE) != 0) {
+    printf("failed to set up buffer for input file\n");
+  } else {
+    printf("buffer(8KB) set up for input file\n"); 
+  }
+
+  count = build_data_file_index(&file_index, storage);
+  catalog_build(&CATALOG);
+  qsort(file_index, count, sizeof(file_position *), comp);
+  find(A, B, CATALOG, file_index, count, storage);
 }
 
 int main(int argc, char * argv[]) {
@@ -121,7 +152,7 @@ int main(int argc, char * argv[]) {
       exit(EXIT_FAILURE);
     }
     printf("find %s = %s\n", A, B);
-    // Find(A,B)
+    Find(A, B);
     exit(EXIT_SUCCESS);
   } else {
     printf("No such Command!\n");

@@ -32,7 +32,31 @@ void test_build_data_file_index() {
   }
 }
 
+void test_find() {
+  char * Key_name = "dyn1";
+  char * value = "50378";
+
+  char ** json;
+  catalog_record * CATALOG = NULL;
+
+  FILE * f = fopen(DATA_FILE, "rb");
+  file_position **file_index;
+  int count;
+  
+  count = build_data_file_index(&file_index, f);
+
+  catalog_build(&CATALOG);
+  
+  int i, j;
+
+  qsort(file_index, count, sizeof(file_position *), comp);
+
+  find(Key_name, value, json, CATALOG, file_index, count, f);
+  
+}
+
 int main() {
-  test_build_data_file_index();
+  // test_build_data_file_index();
+  test_find();
   return 0;
 }

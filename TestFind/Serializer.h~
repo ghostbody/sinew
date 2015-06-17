@@ -6,6 +6,18 @@
 #include "Catalog.h"
 #include <stdio.h>
 
+#ifndef DATA_TYPES
+#define DATA_TYPES
+const char * data_types[] = {
+  "int32",
+  "bool",
+  "string",
+  "array",
+  "object",
+  "unknown"
+};
+#endif
+
 typedef struct data_unit {
   int attr_id;
   int offset;
@@ -50,7 +62,7 @@ bool parseBool(char * json, int start);
 // pass
 int cmp( const void *a ,const void *b);
 // pass
-char** parseStringArray(char * json, int start, int end,
+ char** parseStringArray(char * json, int start, int end,
 			int * count, int begin[1000], int finish[1000]);
 
 #endif

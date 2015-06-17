@@ -103,7 +103,7 @@ json_parser * ParseJson(char * JsonStr, int * len) {
   return head;
 }
 
-extern char * to_json(char ** Key_names, char ** values, int property_amount) {
+bool to_json(char * json, char ** Key_names, char ** values, int property_amount) {
   int position = 0;
 
   const char * comma = ",";
@@ -111,10 +111,10 @@ extern char * to_json(char ** Key_names, char ** values, int property_amount) {
   const char * colon = ":";
   const char * left_brace = "{";
   const char * right_brace = "}";
-
-  char * json[10000];
   
   int i;
+
+  memset(json, 0, sizeof(json));
   strcat(json, left_brace);
   
   for(i = 0; i < property_amount; i++) {
@@ -122,14 +122,14 @@ extern char * to_json(char ** Key_names, char ** values, int property_amount) {
     strcat(json, Key_names[i]);
     strcat(json, quote);
     strcat(json, colon);
-    strcat(json, quote);
     strcat(json, values[i]);
-    strcat(json, quote);
     if(i != property_amount-1)
       strcat(json, comma);
   }
 
   strcat(json, right_brace);
+
+  return true;
 }
 
 void DeleteJson(json_parser * head) {

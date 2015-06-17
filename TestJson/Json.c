@@ -5,7 +5,7 @@
 
 json_parser * ParseJson(char * JsonStr, int * len) {
 
-  *len = 0;
+  (*len) = 0;
   
   if(JsonStr == NULL)
     return NULL;
@@ -26,7 +26,7 @@ json_parser * ParseJson(char * JsonStr, int * len) {
     head->next = NULL;
     head->type = 0;
     head->dtype = 2;
-    *len++;
+    (*len)++;
   } else {
     return NULL;
   }
@@ -79,8 +79,7 @@ json_parser * ParseJson(char * JsonStr, int * len) {
       positioner = temp;
       
       i--;
-      *len++;
-      continue;
+      (*len)++;
     } else if(JsonStr[i] == ',') {
       i++;
       while(JsonStr[i] == ' ') {
@@ -98,12 +97,39 @@ json_parser * ParseJson(char * JsonStr, int * len) {
       positioner->next = temp;
       positioner = temp;
       i--;
-      *len++;
-      continue;
+      (*len)++;
     }
   }
-
   return head;
+}
+
+bool to_json(char * json, char ** Key_names, char ** values, int property_amount) {
+  int position = 0;
+
+  const char * comma = ",";
+  const char * quote = "\"";
+  const char * colon = ":";
+  const char * left_brace = "{";
+  const char * right_brace = "}";
+  
+  int i;
+
+  memset(json, 0, sizeof(json));
+  strcat(json, left_brace);
+  
+  for(i = 0; i < property_amount; i++) {
+    strcat(json, quote);
+    strcat(json, Key_names[i]);
+    strcat(json, quote);
+    strcat(json, colon);
+    strcat(json, values[i]);
+    if(i != property_amount-1)
+      strcat(json, comma);
+  }
+
+  strcat(json, right_brace);
+
+  return true;
 }
 
 void DeleteJson(json_parser * head) {

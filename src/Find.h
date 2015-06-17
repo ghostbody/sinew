@@ -17,13 +17,14 @@ typedef struct file_position {
 typedef struct result{
   int record_id;
   char * json;
+  int attr_position;
+  bool match;
   struct result * next;
 }result;
 
 int build_data_file_index(file_position *** file_index, FILE * storage);
-bool find(char * Key_name, char * value, catalog_record * CATALOG,
-	  file_position ** file_index, int count, FILE * storage);
 bool Materializer(file_position ** file_index, result ** head,
-		  catalog_record * CATALOG, FILE * storage);
+		  catalog_record * CATALOG, FILE * storage, int * record_count);
+
 #endif
 

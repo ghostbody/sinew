@@ -49,7 +49,7 @@ bool catalog_build(catalog_record ** CATALOG);
   process: Read All the CATALOG list address into the INDEX for direct access
   output: An array(the index)
  */
-catalog_record ** catalog_index_build(catalog_record * CATALOG);
+bool catalog_index_build(catalog_record * CATALOG, catalog_record *** index);
 /*
   input: A Catalog id and an index
   process: Find the attr from the catalog 

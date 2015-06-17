@@ -50,7 +50,7 @@ bool parseBool(char * json, int start);
 // pass
 int cmp( const void *a ,const void *b);
 // pass
-char** parseStringArray(char * json, int start, int end,
+ char** parseStringArray(char * json, int start, int end,
 			int * count, int begin[1000], int finish[1000]);
 
 #endif

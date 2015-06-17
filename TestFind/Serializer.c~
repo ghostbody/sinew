@@ -17,6 +17,7 @@ void write(head2 * Serializer, FILE * file);
 
 // for test
 
+
 void formatWrite(head2 * Serializer, FILE * file) {
   /*
     static char IOBUFFER[PAGE_SIZE];
@@ -77,16 +78,6 @@ void formatWrite(head2 * Serializer, FILE * file) {
   }
   fprintf(file, "\n");
 }
-
-const char * data_types[] = {
-  "int32",
-  "bool",
-  "string",
-  "array",
-  "object",
-  "unknown"
-};
-
 
 void parseString(char * json, int start, int end, char ** destination) {
   (*destination) = (char *)malloc(sizeof(char) * (end - start));
@@ -316,7 +307,6 @@ int ObjectSerializer(char * json, int start, int end, int * max_id, catalog_reco
   JsonSerializer(nested_json, nested_json_parser, nested_json_len, max_id,CATALOG, file);
   DeleteJson(nested_json_parser);
   nested_json_parser = NULL;
-  return *max_id;
 }
 
 void write(head2 * Serializer, FILE * file) {

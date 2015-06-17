@@ -25,6 +25,13 @@ int main() {
     positioner = positioner->next;
     printf("\n");
   }
+
+  char * Keynames[] = {"sid","name","grade"};
+  char * values[] = {"13331314", "\"yejiaqi\"", "90"};
+
+  to_json(Json, Keynames, values, 3);
+  
+  puts(Json);
   
   return 0;
 }

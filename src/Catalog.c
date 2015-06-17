@@ -121,10 +121,10 @@ bool catalog_save(catalog_record * CATALOG) {
   return true;
 }
 
-catalog_record ** catalog_index_build(catalog_record * CATALOG) {
+bool catalog_index_build(catalog_record * CATALOG, catalog_record *** index) {
 
   if (CATALOG == NULL) {
-    return NULL;
+    return false;
   }
 
   catalog_record * positioner = CATALOG;
@@ -139,7 +139,7 @@ catalog_record ** catalog_index_build(catalog_record * CATALOG) {
   catalog_record ** CATALOG_INDEX = (catalog_record **)malloc(sizeof(catalog_record *) * (count + 1));
 
   if(CATALOG_INDEX == NULL) {
-    return NULL;
+    return false;
   }
 
   int i;
@@ -148,18 +148,13 @@ catalog_record ** catalog_index_build(catalog_record * CATALOG) {
     CATALOG_INDEX[i] = positioner;
   }
   
-  return CATALOG_INDEX;
+  (*index) = CATALOG_INDEX;
+  return true;
 }
 
 bool catalog_find_by_id(int _id, catalog_record * index[],
 		  catalog_record ** destination) {
   if(index == NULL) {
-    return false;
-  }
-
-  int length = sizeof(index)/sizeof(index[0]);
-
-  if(_id-1 > length) {
     return false;
   }
   
