@@ -165,8 +165,12 @@ void find_attr_in_file(result ** head, result ** tail, file_position ** file_ind
 }
 
 char * Array_Materializer(file_position * array_record, FILE * storage) {
-  char * Array = (char * )malloc(sizeof(char) * 1000);
+  char * Array = NULL;
+  while(Array == NULL)
+    Array = (char * )malloc(sizeof(char) * 1000);
   int i;
+
+  memset(Array, 0, sizeof(char) * 1000);
 
   const char * left_bracket = "[";
   const char * right_bracket = "]";
@@ -183,7 +187,8 @@ char * Array_Materializer(file_position * array_record, FILE * storage) {
     fread(&offset2, sizeof(int), 1, storage);
     fseek(storage, array_record->position + offset1, SEEK_SET);
     int length = offset2-offset1;
-    char * data_string = (char *)malloc(sizeof(char) * (length + 1));
+    char * data_string = (char *)malloc(sizeof(char) * (length + 2));
+    memset(data_string, 0, sizeof(char) * (length + 2));
     fread(data_string, sizeof(char), length, storage);
     // printf("data_string: %s\n", data_string);
 
@@ -191,6 +196,7 @@ char * Array_Materializer(file_position * array_record, FILE * storage) {
     strcat(Array, data_string);
     strcat(Array, quote);
     free(data_string);
+    data_string = NULL;
 
     if(i != array_record->attr_num - 1)
       strcat(Array, comma);
@@ -250,16 +256,17 @@ char * Object_Materializer(int id, file_position ** file_index,
       }
     } else if (strcmp(catalog_res->Key_Type, dataTypes[2]) == 0) {
       int length = offset2-offset1;
-      char * data_string = (char *)malloc(sizeof(char) * (length + 3));
-
+      char * data_string = (char *)malloc(sizeof(char) * 1000);
+      
       fread(data_string, sizeof(char), length, storage);
       int j;
       for(j = length; j >= 0; j--) {
 	data_string[j] = data_string[j-1];
       }
       data_string[0] = '"';
-      strcat(data_string, "\"");
-      //printf("data_string: %s\n", data_string);
+      data_string[length+1] = '"';
+      data_string[length+2] = '\0';
+      // printf("%d data_string: %s\n", length, data_string);
       values[i] = data_string;
     } else if (strcmp(catalog_res->Key_Type, dataTypes[3]) == 0) {
       int data_array = NULL;
@@ -277,12 +284,17 @@ char * Object_Materializer(int id, file_position ** file_index,
   to_json(Json, Key_names, values, destination_record->attr_num);
 
   for(i = 0; i < destination_record->attr_num; i++) {
-    free(values[i]);
+    // printf("values[i] %s\n", values[i]);
+    if(values[i] != NULL && strlen(values[i]) != 0)
+      free(values[i]);
+    values[i] = NULL;
     // note that Key_names[i] is just pointers point to Catalog
   }
 
   free(values);
+  values = NULL;
   free(Key_names);
+  Key_names = NULL;
   
   return Json;
 }
@@ -306,6 +318,7 @@ bool Materializer(file_position ** file_index, result ** head,
     (*record_count)++;
     // printf("position id: %d\n", positioner->record_id);
     free(json);
+    json = NULL;
     positioner = positioner->next;
   }
 }
@@ -321,15 +334,14 @@ bool find_value_in_file(file_position ** file_index, result ** head,const char *
 	  + (2 + destination_check_record->attr_num + positioner->attr_position) * sizeof(int), SEEK_SET);
     int offset, offset1;
     fread(&offset, sizeof(int), 1, storage);
-    if(typei == 2) { 
+    if(typei == 2) {
       fread(&offset1, sizeof(int), 1, storage);
     }
-    // printf("%d\n", offset);
     fseek(storage, destination_check_record->position+offset, SEEK_SET);
     if(typei == 0) {
       int data_int32;
       //printf("data_int32: %d\n", data_int32);
-      char * s = (char *)malloc(sizeof(char) * 20);   
+      char * s = (char *)malloc(sizeof(char) * 20);
       fread(&data_int32, sizeof(int), 1, storage);
       sprintf(s, "%d", data_int32);
       if(strcmp(s, value) != 0) {
@@ -339,6 +351,7 @@ bool find_value_in_file(file_position ** file_index, result ** head,const char *
 	// printf("value match! %s %s %d\n", s, value, positioner->record_id);
       }
       free(s);
+      s = NULL;
     } else if(typei == 1) {
       char * s;
       bool data_bool;
@@ -355,31 +368,30 @@ bool find_value_in_file(file_position ** file_index, result ** head,const char *
 	// printf("value not match %s %s\n", s, value);
       }
       free(s);
+      s = NULL;
     } else if(typei == 2) {
       int length = offset1 - offset;
       char * data_string = (char *)malloc(sizeof(char) * (length + 3));
-
+      data_string[length] = '\0';
       fread(data_string, sizeof(char), length, storage);
-      int j;
-      for(j = length; j >= 0; j--) {
-	data_string[j] = data_string[j-1];
-      }
-      data_string[0] = '"';
-      strcat(data_string, "\"");
+      
       if(strcmp(data_string, value) != 0) {
 	positioner->match = false;
 	// printf("value not match %s %s\n", data_string, value);
       }
       free(data_string);
+      data_string = NULL;
     } else if (typei == 3) {
       int data_array = NULL;
       fread(&data_array, sizeof(int), 1, storage);
+      printf("%d\n", data_array);
       char * s = Array_Materializer(file_index[data_array-1], storage);
       if(strcmp(s, value) != 0) {
 	positioner->match = false;
 	// printf("value not match %s %s\n", s, value);
       }
       free(s);
+      s = NULL;
     } else if (typei == 4) {
       int data_Obj;
       fread(&data_Obj, sizeof(int), 1, storage);
@@ -389,6 +401,7 @@ bool find_value_in_file(file_position ** file_index, result ** head,const char *
 	// printf("value not match %s %s\n", s, value);
       }
       free(s);
+      s = NULL;
     } else {
       printf("Match Value Type Error!\n");
     }
@@ -411,17 +424,14 @@ bool find(const char * Key_name, const char * value, catalog_record * CATALOG,
   } else if (value[0] == 't' || value[0] == 'T' ||
 	     value[0] == 'f' || value[0] == 'F') {
     typei = 1;
-  } else if (value[0] > '0' && value[0] < '9') {
+  } else if (value[0] >= '0' && value[0] <= '9') {
     typei = 0;
-  } else if (value[0] == '\"') {
-    typei = 2;
   } else if (value[0] == '[') {
     typei = 3;
   } else if (value[0] == '{') {
     typei = 4;
   } else {
-    printf("type error\n");
-    return false; 
+    typei = 2;
   }
   
   if(catalog_find_by_key(CATALOG, &attr_id, Key_name, dataTypes[typei])) {

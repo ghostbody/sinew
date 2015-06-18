@@ -87,14 +87,13 @@ const char * data_types[] = {
   "unknown"
 };
 
-
 void parseString(char * json, int start, int end, char ** destination) {
-  (*destination) = (char *)malloc(sizeof(char) * (end - start));
-  (*destination)[end - start - 1] = '\0';
+  (*destination) = (char *)malloc(sizeof(char) * (end - start + 2));
   int i, j;
   for(i = start+1, j = 0; i < end; i++, j++) {
     (*destination)[j] = json[i];
   }
+  (*destination)[j] = '\0';
 }
 
 int parseInt(char * json, int start, int end) {
@@ -206,7 +205,9 @@ bool JsonSerializer(char * json, json_parser * first, int json_len,
   head2_data.data_unit_array = data_units;
 
   // formatWrite(&head2_data, file);
+
   write(&head2_data, file);
+  
   for(i = 0; i < json_len /2 ; i++) {
     if(data_units[i].dtype == 2) {
       free(data_units[i].data.STRING_DATA);

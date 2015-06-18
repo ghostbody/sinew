@@ -92,10 +92,8 @@ void parseString(char * json, int start, int end, char ** destination) {
   int i, j;
   for(i = start+1, j = 0; i < end; i++, j++) {
     (*destination)[j] = json[i];
-    printf("%c", json[i]);
   }
   (*destination)[j] = '\0';
-  printf("\ndes : %s\n", *destination);
 }
 
 int parseInt(char * json, int start, int end) {
@@ -129,7 +127,7 @@ bool JsonSerializer(char * json, json_parser * first, int json_len,
   head2_data.attr_num = json_len / 2;
   offset = (2 + json_len + 1) * sizeof(int);
   head2_data.offset = offset;
-
+  
   head2_data.data_unit_array = (data_unit *)malloc(sizeof(data_unit) * (int)(json_len / 2));
   data_unit * data_units = head2_data.data_unit_array;
   
@@ -138,7 +136,7 @@ bool JsonSerializer(char * json, json_parser * first, int json_len,
   for(i = 0; i < json_len /2 ; i++) {
     char * Key_name = NULL;
     const char * Key_Type = NULL;
-
+    
     // deal with keys
     parseString(json, json_parser_positioner->start, json_parser_positioner->end, &Key_name);
     // printf("%s\n", Key_name);
@@ -177,7 +175,7 @@ bool JsonSerializer(char * json, json_parser * first, int json_len,
     }
     json_parser_positioner = json_parser_positioner->next;
   }
-
+  
   qsort(data_units, json_len / 2, sizeof(data_unit), cmp);
 
   for(i = 0; i < json_len /2 ; i++) {
@@ -205,9 +203,11 @@ bool JsonSerializer(char * json, json_parser * first, int json_len,
   }
   
   head2_data.data_unit_array = data_units;
+  
+  // formatWrite(&head2_data, file);
 
-  formatWrite(&head2_data, file);
-
+  write(&head2_data, file);
+  
   for(i = 0; i < json_len /2 ; i++) {
     if(data_units[i].dtype == 2) {
       free(data_units[i].data.STRING_DATA);
@@ -291,8 +291,8 @@ int ArraySerializer(char * json, int start, int end, int * max_id, catalog_recor
     data_units[i].offset = offset;
   }
 
-  formatWrite(&head2_data, file);
-  // write(&head2_data, file);
+  // formatWrite(&head2_data, file);
+  write(&head2_data, file);
 
   free(strings);
   free(head2_data.data_unit_array);
